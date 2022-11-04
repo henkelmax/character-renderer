@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import de.maxhenkel.characterrenderer.CharacterRenderer;
+import de.maxhenkel.characterrenderer.PlayerPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
@@ -19,11 +20,7 @@ public class CharacterRendererScreen extends ScreenBase {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(CharacterRenderer.MODID, "textures/gui/renderer.png");
 
-    private float headRotationX;
-    private float headRotationY;
-
-    private float bodyRotationX;
-    private float bodyRotationY;
+    private PlayerPose playerPose;
 
     private Button headButton;
     private Button bodyButton;
@@ -33,6 +30,7 @@ public class CharacterRendererScreen extends ScreenBase {
 
     public CharacterRendererScreen() {
         super(Component.translatable("gui.characterrenderer.renderer"), 248, 204);
+        playerPose = new PlayerPose();
     }
 
     @Override
@@ -76,43 +74,43 @@ public class CharacterRendererScreen extends ScreenBase {
         font.draw(matrixStack, getTitle().getVisualOrderText(), guiLeft + (xSize - titleWidth) / 2, guiTop + 7, FONT_COLOR);
 
         fill(matrixStack, guiLeft + 60, guiTop + 20, guiLeft + xSize - 60, guiTop + ySize - 30, 0xFFFFFFFF);
-        renderEntityInInventory(guiLeft + xSize / 2, guiTop + ySize - 45, 65, minecraft.player);
+        renderEntityInInventory(guiLeft + xSize / 2, guiTop + ySize - 45, 65, minecraft.player, playerPose);
     }
 
     @Override
     public boolean mouseDragged(double posX, double posY, int button, double deltaX, double deltaY) {
         if (modifyHead) {
-            headRotationX -= deltaX;
-            headRotationY = (float) Math.min(Math.max(headRotationY - deltaY, -90F), 90F);
+            playerPose.headRotationX -= deltaX;
+            playerPose.headRotationY = (float) Math.min(Math.max(playerPose.headRotationY - deltaY, -90F), 90F);
         }
         if (modifyBody) {
-            bodyRotationX -= deltaX;
-            bodyRotationY = (float) Math.min(Math.max(bodyRotationY - deltaY, -45F), 45F);
+            playerPose.bodyRotationX -= deltaX;
+            playerPose.bodyRotationY = (float) Math.min(Math.max(playerPose.bodyRotationY - deltaY, -45F), 45F);
         }
         return super.mouseDragged(posX, posY, button, deltaX, deltaY);
     }
 
-    public void renderEntityInInventory(int posX, int posY, int scale, LivingEntity entity) {
+    public static void renderEntityInInventory(int posX, int posY, int scale, LivingEntity entity, PlayerPose playerPose) {
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.pushPose();
         poseStack.translate(posX, posY, 1500D);
         poseStack.scale(1F, 1F, -1F);
         RenderSystem.applyModelViewMatrix();
-        PoseStack playerPose = new PoseStack();
-        playerPose.translate(0D, 0D, 1050D);
-        playerPose.scale((float) scale, (float) scale, (float) scale);
+        PoseStack playerPoseStack = new PoseStack();
+        playerPoseStack.translate(0D, 0D, 1050D);
+        playerPoseStack.scale((float) scale, (float) scale, (float) scale);
         Quaternion playerRotation = Vector3f.ZP.rotationDegrees(180F);
-        Quaternion cameraOrientation = Vector3f.XP.rotationDegrees(bodyRotationY);
+        Quaternion cameraOrientation = Vector3f.XP.rotationDegrees(playerPose.bodyRotationY);
         playerRotation.mul(cameraOrientation);
-        playerPose.mulPose(playerRotation);
+        playerPoseStack.mulPose(playerRotation);
         float yBodyRot = entity.yBodyRot;
         float entityYRot = entity.getYRot();
         float entityXRot = entity.getXRot();
         float yHeadRotO = entity.yHeadRotO;
         float yHeadRot = entity.yHeadRot;
-        entity.yBodyRot = 180F + bodyRotationX;
-        entity.setYRot(180F + headRotationX);
-        entity.setXRot(-headRotationY);
+        entity.yBodyRot = 180F + playerPose.bodyRotationX;
+        entity.setYRot(180F + playerPose.headRotationX);
+        entity.setXRot(-playerPose.headRotationY);
         entity.yHeadRot = entity.getYRot();
         entity.yHeadRotO = entity.getYRot();
         Lighting.setupForEntityInInventory();
@@ -122,7 +120,7 @@ public class CharacterRendererScreen extends ScreenBase {
         renderer.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() -> {
-            renderer.render(entity, 0D, 0D, 0D, 0F, 1F, playerPose, bufferSource, 15728880);
+            renderer.render(entity, 0D, 0D, 0D, 0F, 1F, playerPoseStack, bufferSource, 15728880);
         });
         bufferSource.endBatch();
         renderer.setRenderShadow(true);
