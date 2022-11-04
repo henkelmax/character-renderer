@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "characterrenderer",
+  "version": "${version}",
+  "name": "Character Renderer",
+  "description": "Character Renderer",
+  "authors": [
+    "Max Henkel"
+  ],
+  "license": "All Rights Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "de.maxhenkel.characterrenderer.CharacterRenderer"
+    ]
+  },
+  "mixins": [
+    "characterrenderer.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": ">=${fabric_version}",
+    "minecraft": "${minecraft_dependency}",
+    "java": ">=17"
+  }
+}

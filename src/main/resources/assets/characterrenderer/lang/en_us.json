@@ -1,0 +1,7 @@
+{
+  "key.characterrenderer.open_gui": "Open Character Renderer GUI",
+  "gui.characterrenderer.renderer": "Character Renderer",
+  "message.characterrenderer.render": "Render",
+  "message.characterrenderer.head": "Head",
+  "message.characterrenderer.body": "Body"
+}
