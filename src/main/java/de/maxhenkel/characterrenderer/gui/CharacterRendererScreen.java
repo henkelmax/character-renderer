@@ -12,7 +12,6 @@ import de.maxhenkel.characterrenderer.render.RenderManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -35,7 +34,7 @@ public class CharacterRendererScreen extends ScreenBase {
     private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
 
     private EntityPose entityPose;
-    private LivingEntity entity;
+    private Player entity;
 
     private Button headButton;
     private Button bodyButton;
@@ -44,14 +43,18 @@ public class CharacterRendererScreen extends ScreenBase {
     private boolean modifyBody;
 
     public CharacterRendererScreen() {
+        this(new DummyPlayer(Minecraft.getInstance().getUser().getGameProfile(), Minecraft.getInstance().player));
+    }
+
+    public CharacterRendererScreen(Player entity) {
         super(Component.translatable("gui.characterrenderer.renderer"), 248, 204);
         entityPose = new EntityPose();
+        this.entity = entity;
     }
 
     @Override
     protected void init() {
         super.init();
-        entity = clonePlayer(Minecraft.getInstance().player);
 
         headButton = new Button(guiLeft + 10, guiTop + 20, 40, 20, Component.translatable("message.characterrenderer.head"), button -> {
             modifyHead = true;
@@ -90,13 +93,13 @@ public class CharacterRendererScreen extends ScreenBase {
         }));
     }
 
-    private AbstractClientPlayer clonePlayer(Player player) {
+    /*private AbstractClientPlayer clonePlayer(Player player) {
         DummyPlayer dummyPlayer = new DummyPlayer(
                 player.getGameProfile(),
                 player
         );
         return dummyPlayer;
-    }
+    }*/
 
     private void sendMessage(Component component) {
         CharacterRenderer.LOGGER.info(component.getString());

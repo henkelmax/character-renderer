@@ -12,7 +12,7 @@ public class DummyPlayer extends RemotePlayer {
     private byte model;
 
     public DummyPlayer(GameProfile gameProfile, Player toCopy) {
-        super(Minecraft.getInstance().level, gameProfile, null);
+        this(gameProfile);
         model = toCopy.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION);
 
         Inventory toCopyInventory = toCopy.getInventory();
@@ -28,6 +28,10 @@ public class DummyPlayer extends RemotePlayer {
             inventory.armor.set(i, toCopyInventory.armor.get(i).copy());
         }
         inventory.selected = toCopyInventory.selected;
+    }
+
+    public DummyPlayer(GameProfile gameProfile) {
+        super(Minecraft.getInstance().level, gameProfile, null);
     }
 
     public void showPart(PlayerModelPart part, boolean show) {

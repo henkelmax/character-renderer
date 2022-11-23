@@ -6,5 +6,7 @@
   "message.characterrenderer.body": "Body",
   "message.characterrenderer.render_success": "Saved render to %s",
   "message.characterrenderer.render_error": "Failed to render character: %s",
-  "message.characterrenderer.open_folder": "Open Folder"
+  "message.characterrenderer.open_folder": "Open Folder",
+  "message.characterrenderer.player_too_far_away": "Player %s is too far away to fetch equipment",
+  "message.characterrenderer.unknown_player": "Unknown player: %s"
 }

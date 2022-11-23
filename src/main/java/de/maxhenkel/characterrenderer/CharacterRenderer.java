@@ -1,11 +1,13 @@
 package de.maxhenkel.characterrenderer;
 
+import de.maxhenkel.characterrenderer.commands.CharacterRendererCommands;
 import de.maxhenkel.characterrenderer.config.ClientConfig;
 import de.maxhenkel.characterrenderer.gui.CharacterRendererScreen;
 import de.maxhenkel.configbuilder.ConfigBuilder;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
@@ -48,5 +50,7 @@ public class CharacterRenderer implements ClientModInitializer {
                 mc.setScreen(new CharacterRendererScreen());
             }
         });
+
+        ClientCommandRegistrationCallback.EVENT.register(CharacterRendererCommands::init);
     }
 }
