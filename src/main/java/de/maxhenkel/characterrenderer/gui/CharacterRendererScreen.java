@@ -60,7 +60,7 @@ public class CharacterRendererScreen extends ScreenBase {
 
         addRenderableWidget(new Button(guiLeft + 10, guiTop + ySize - 5 - 20, xSize - 20, 20, Component.translatable("message.characterrenderer.render"), button -> {
             //TODO Render character
-            RenderManager.enqeueRender(1000, 2000, minecraft.player, playerPose, Minecraft.getInstance().gameDirectory.toPath().resolve("render.png").toFile(), (x) -> {
+            RenderManager.enqeueRender(1500, 2000, minecraft.player, playerPose, Minecraft.getInstance().gameDirectory.toPath().resolve("render.png").toFile(), (x) -> {
                 if (x.err != RenderManager.RenderResult.State.SUCCESS) {
                     //something went wrong
                     System.out.println("something went wrong");

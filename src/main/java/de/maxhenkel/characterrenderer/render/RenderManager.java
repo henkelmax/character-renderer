@@ -148,7 +148,7 @@ public class RenderManager {
         poseStack.translate(0.0, 0.0, -3000);
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
-        CharacterRendererScreen.renderEntityInInventory(x / 2, y - 100, (y - 50) / 2, renderObject.entity, renderObject.playerPose);
+        CharacterRendererScreen.renderEntityInInventory(x / 2, y - 200, (y - 400) / 2, renderObject.entity, renderObject.playerPose);
         RenderSystem.replayQueue();
         ByteBuffer render = ByteBuffer.allocateDirect(x * y * 4);
         GL30.glFlush();
