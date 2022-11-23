@@ -22,7 +22,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
-
 public class RenderManager {
     private static int renderFBO = -1;
     private static int renderTexture = -1;
@@ -54,6 +53,7 @@ public class RenderManager {
         public State err;
         public int err_code; //set if FBO_ERROR, or OPENGL_ERROR
         public File result; //set to the same file that was passed in
+
         public enum State {
             SUCCESS,
             FILE_ALREADY_EXISTS,
@@ -67,6 +67,7 @@ public class RenderManager {
             this.err_code = -1;
             this.result = renderObject.output;
         }
+
         private RenderResult(RenderObject renderObject, State err, int err_code) {
             this.err = err;
             this.err_code = err_code;
@@ -75,14 +76,15 @@ public class RenderManager {
     }
 
     public static void enqeueRender(int x, int y, LivingEntity entity, PlayerPose playerPose, File outputFile, Consumer<RenderResult> callback) {
-        enqeueRender(x,y,entity,playerPose,outputFile,callback,false);
+        enqeueRender(x, y, entity, playerPose, outputFile, callback, false);
     }
-    public static void enqeueRender(int x, int y, LivingEntity entity, PlayerPose playerPose, File outputFile,Consumer<RenderResult> callback, boolean replaceExisting /* = false */) {
-        toRender.add(new RenderObject(x,y,playerPose,entity,outputFile,replaceExisting,callback));
+
+    public static void enqeueRender(int x, int y, LivingEntity entity, PlayerPose playerPose, File outputFile, Consumer<RenderResult> callback, boolean replaceExisting /* = false */) {
+        toRender.add(new RenderObject(x, y, playerPose, entity, outputFile, replaceExisting, callback));
     }
 
     public static void doAllRenders() {
-        while(toRender.size() > 0) {
+        while (toRender.size() > 0) {
             RenderObject obj = toRender.poll();
             try {
                 doRender(obj);
@@ -94,7 +96,8 @@ public class RenderManager {
 
         }
     }
-    public static void doRender(RenderObject renderObject) throws Exception{
+
+    public static void doRender(RenderObject renderObject) throws Exception {
         int x = renderObject.x;
         int y = renderObject.y;
 
@@ -102,7 +105,7 @@ public class RenderManager {
             renderFBO = GL30.glGenFramebuffers();
             checkGLError(renderObject);
         }
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,renderFBO);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, renderFBO);
         if (renderTexture == -1) {
             renderTexture = GL30.glGenTextures();
             checkGLError(renderObject);
@@ -116,20 +119,20 @@ public class RenderManager {
         GL30.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, x, y, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, 0);
         GL30.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GL30.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER,renderDepthBuffer);
-        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER,GL11.GL_DEPTH_COMPONENT, x,y);
-        GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER,GL30.GL_DEPTH_ATTACHMENT,GL30.GL_RENDERBUFFER, renderDepthBuffer);
+        GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, renderDepthBuffer);
+        GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL11.GL_DEPTH_COMPONENT, x, y);
+        GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, renderDepthBuffer);
         GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, renderTexture, 0);
         checkGLError(renderObject);
         int status = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER);
         if (status != GL30.GL_FRAMEBUFFER_COMPLETE) {
-            renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.FBO_ERROR,status));
-            throw new IllegalStateException("OpenGL FBO Error, "+ status);
+            renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.FBO_ERROR, status));
+            throw new IllegalStateException("OpenGL FBO Error, " + status);
         }
         GL30.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
         checkGLError(renderObject);
 
-        GL30.glViewport(0,0,x,y);
+        GL30.glViewport(0, 0, x, y);
         checkGLError(renderObject);
 
         GL30.glClearColor(0f, 0f, 0f, 0.0f);
@@ -145,23 +148,23 @@ public class RenderManager {
         poseStack.translate(0.0, 0.0, -3000);
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
-        CharacterRendererScreen.renderEntityInInventory(x/2,y-100,(y-50)/2, renderObject.entity, renderObject.playerPose);
+        CharacterRendererScreen.renderEntityInInventory(x / 2, y - 100, (y - 50) / 2, renderObject.entity, renderObject.playerPose);
         RenderSystem.replayQueue();
-        ByteBuffer render = ByteBuffer.allocateDirect(x*y*4);
+        ByteBuffer render = ByteBuffer.allocateDirect(x * y * 4);
         GL30.glFlush();
         checkGLError(renderObject);
-        GL11.glReadPixels(0,0,x,y,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,render);
+        GL11.glReadPixels(0, 0, x, y, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, render);
         checkGLError(renderObject);
         BufferedImage image = new BufferedImage(x, y, BufferedImage.TYPE_4BYTE_ABGR);
-        byte[] imgData = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
-        for (int ix = 0; ix<x; ix++) {
-            for (int iy = 0; iy<y; iy++) {
+        byte[] imgData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        for (int ix = 0; ix < x; ix++) {
+            for (int iy = 0; iy < y; iy++) {
                 int inByte = ((iy * x) + ix) * 4;
-                int outByte = ((((y-1) - iy) * x) + ix) * 4;
-                imgData[outByte] = render.get(inByte+3);
-                imgData[outByte+1] = render.get(inByte+2);
-                imgData[outByte+2] = render.get(inByte+1);
-                imgData[outByte+3] = render.get(inByte);
+                int outByte = ((((y - 1) - iy) * x) + ix) * 4;
+                imgData[outByte] = render.get(inByte + 3);
+                imgData[outByte + 1] = render.get(inByte + 2);
+                imgData[outByte + 2] = render.get(inByte + 1);
+                imgData[outByte + 3] = render.get(inByte);
             }
         }
         File outputFile = Minecraft.getInstance().gameDirectory.toPath().resolve("render.png").toFile();
@@ -176,16 +179,16 @@ public class RenderManager {
             }
         }
         try {
-            if(!outputFile.createNewFile()) {
+            if (!outputFile.createNewFile()) {
                 renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.FILESYSTEM_ERROR));
                 throw new IllegalStateException();
             }
-            ImageIO.write(image,"png",outputFile);
+            ImageIO.write(image, "png", outputFile);
         } catch (IOException e) {
             renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.FILESYSTEM_ERROR));
             throw new RuntimeException(e);
         }
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,0);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
         checkGLError(renderObject);
         poseStack.setIdentity();
         renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.SUCCESS));
@@ -194,8 +197,8 @@ public class RenderManager {
     private static void checkGLError(RenderObject renderObject) throws IllegalStateException {
         int err = GL11.glGetError();
         if (err != GL11.GL_NO_ERROR) {
-            renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.OPENGL_ERROR,err));
-            throw new IllegalStateException("OpenGL Error, "+ err);
+            renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.OPENGL_ERROR, err));
+            throw new IllegalStateException("OpenGL Error, " + err);
         }
     }
 

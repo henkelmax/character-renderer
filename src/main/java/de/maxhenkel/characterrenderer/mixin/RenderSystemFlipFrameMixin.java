@@ -9,8 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = RenderSystem.class, remap = false)
 public class RenderSystemFlipFrameMixin {
-    @Inject(method = "flipFrame",at = @At("HEAD"),remap = false)
+
+    @Inject(method = "flipFrame", at = @At("HEAD"), remap = false)
     private static void renderCharacters(long l, CallbackInfo ci) {
         RenderManager.doAllRenders();
     }
+
 }
