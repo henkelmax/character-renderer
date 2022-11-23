@@ -3,6 +3,7 @@ package de.maxhenkel.characterrenderer.entity;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 
@@ -13,6 +14,20 @@ public class DummyPlayer extends RemotePlayer {
     public DummyPlayer(GameProfile gameProfile, Player toCopy) {
         super(Minecraft.getInstance().level, gameProfile, null);
         model = toCopy.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION);
+
+        Inventory toCopyInventory = toCopy.getInventory();
+        Inventory inventory = getInventory();
+
+        for (int i = 0; i < toCopyInventory.items.size(); i++) {
+            inventory.items.set(i, toCopyInventory.items.get(i).copy());
+        }
+        for (int i = 0; i < toCopyInventory.offhand.size(); i++) {
+            inventory.offhand.set(i, toCopyInventory.offhand.get(i).copy());
+        }
+        for (int i = 0; i < toCopyInventory.armor.size(); i++) {
+            inventory.armor.set(i, toCopyInventory.armor.get(i).copy());
+        }
+        inventory.selected = toCopyInventory.selected;
     }
 
     public void showPart(PlayerModelPart part, boolean show) {
