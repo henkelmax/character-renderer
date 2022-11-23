@@ -69,7 +69,7 @@ public class CharacterRendererScreen extends ScreenBase {
 
         addRenderableWidget(new Button(guiLeft + 10, guiTop + ySize - 5 - 20, xSize - 20, 20, Component.translatable("message.characterrenderer.render"), button -> {
             Path outputFile = CharacterRenderer.CLIENT_CONFIG.getSaveFolder().resolve("%s.png".formatted(FILE_DATE_FORMAT.format(Calendar.getInstance().getTime())));
-            RenderManager.enqeueRender(1500, 2000, minecraft.player, playerPose, outputFile.toFile(), (result) -> {
+            RenderManager.enqeueRender(CharacterRenderer.CLIENT_CONFIG.renderWidth.get(), CharacterRenderer.CLIENT_CONFIG.renderHeight.get(), minecraft.player, playerPose, outputFile.toFile(), (result) -> {
                 if (result.err.equals(RenderManager.RenderResult.State.SUCCESS)) {
                     sendMessage(Component.translatable("message.characterrenderer.render_success", Component.literal(result.result.getName())
                             .withStyle(ChatFormatting.UNDERLINE)

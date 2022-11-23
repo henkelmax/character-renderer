@@ -10,9 +10,13 @@ import java.nio.file.Paths;
 public class ClientConfig {
 
     public final ConfigEntry<String> saveFolder;
+    public final ConfigEntry<Integer> renderWidth;
+    public final ConfigEntry<Integer> renderHeight;
 
     public ClientConfig(ConfigBuilder builder) {
         saveFolder = builder.stringEntry("save_folder", "");
+        renderWidth = builder.integerEntry("render_width", 1500, 16, 16000);
+        renderHeight = builder.integerEntry("render_height", 2000, 16, 16000);
     }
 
     public Path getSaveFolder() {
