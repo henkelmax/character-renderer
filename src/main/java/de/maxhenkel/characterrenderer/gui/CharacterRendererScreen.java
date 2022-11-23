@@ -93,14 +93,6 @@ public class CharacterRendererScreen extends ScreenBase {
         }));
     }
 
-    /*private AbstractClientPlayer clonePlayer(Player player) {
-        DummyPlayer dummyPlayer = new DummyPlayer(
-                player.getGameProfile(),
-                player
-        );
-        return dummyPlayer;
-    }*/
-
     private void sendMessage(Component component) {
         CharacterRenderer.LOGGER.info(component.getString());
         LocalPlayer player = minecraft.player;
