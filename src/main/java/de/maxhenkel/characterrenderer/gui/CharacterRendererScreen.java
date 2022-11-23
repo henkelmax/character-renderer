@@ -6,11 +6,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import de.maxhenkel.characterrenderer.CharacterRenderer;
-import de.maxhenkel.characterrenderer.PlayerPose;
+import de.maxhenkel.characterrenderer.EntityPose;
+import de.maxhenkel.characterrenderer.entity.DummyPlayer;
 import de.maxhenkel.characterrenderer.render.RenderManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -31,7 +34,8 @@ public class CharacterRendererScreen extends ScreenBase {
     private static final ResourceLocation TEXTURE = new ResourceLocation(CharacterRenderer.MODID, "textures/gui/renderer.png");
     private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
 
-    private PlayerPose playerPose;
+    private EntityPose entityPose;
+    private LivingEntity entity;
 
     private Button headButton;
     private Button bodyButton;
@@ -41,12 +45,13 @@ public class CharacterRendererScreen extends ScreenBase {
 
     public CharacterRendererScreen() {
         super(Component.translatable("gui.characterrenderer.renderer"), 248, 204);
-        playerPose = new PlayerPose();
+        entityPose = new EntityPose();
     }
 
     @Override
     protected void init() {
         super.init();
+        entity = clonePlayer(Minecraft.getInstance().player);
 
         headButton = new Button(guiLeft + 10, guiTop + 20, 40, 20, Component.translatable("message.characterrenderer.head"), button -> {
             modifyHead = true;
@@ -69,7 +74,8 @@ public class CharacterRendererScreen extends ScreenBase {
 
         addRenderableWidget(new Button(guiLeft + 10, guiTop + ySize - 5 - 20, xSize - 20, 20, Component.translatable("message.characterrenderer.render"), button -> {
             Path outputFile = CharacterRenderer.CLIENT_CONFIG.getSaveFolder().resolve("%s.png".formatted(FILE_DATE_FORMAT.format(Calendar.getInstance().getTime())));
-            RenderManager.enqeueRender(CharacterRenderer.CLIENT_CONFIG.renderWidth.get(), CharacterRenderer.CLIENT_CONFIG.renderHeight.get(), minecraft.player, playerPose, outputFile.toFile(), (result) -> {
+
+            RenderManager.enqeueRender(CharacterRenderer.CLIENT_CONFIG.renderWidth.get(), CharacterRenderer.CLIENT_CONFIG.renderHeight.get(), entity, entityPose, outputFile.toFile(), (result) -> {
                 if (result.err.equals(RenderManager.RenderResult.State.SUCCESS)) {
                     sendMessage(Component.translatable("message.characterrenderer.render_success", Component.literal(result.result.getName())
                             .withStyle(ChatFormatting.UNDERLINE)
@@ -82,6 +88,14 @@ public class CharacterRendererScreen extends ScreenBase {
                 }
             }, true);
         }));
+    }
+
+    private AbstractClientPlayer clonePlayer(Player player) {
+        DummyPlayer dummyPlayer = new DummyPlayer(
+                player.getGameProfile(),
+                player
+        );
+        return dummyPlayer;
     }
 
     private void sendMessage(Component component) {
@@ -106,23 +120,23 @@ public class CharacterRendererScreen extends ScreenBase {
         font.draw(matrixStack, getTitle().getVisualOrderText(), guiLeft + (xSize - titleWidth) / 2, guiTop + 7, FONT_COLOR);
 
         fill(matrixStack, guiLeft + 60, guiTop + 20, guiLeft + xSize - 60, guiTop + ySize - 30, 0xFFFFFFFF);
-        renderEntityInInventory(guiLeft + xSize / 2, guiTop + ySize - 45, 65, minecraft.player, playerPose);
+        renderEntityInInventory(guiLeft + xSize / 2, guiTop + ySize - 45, 65, entity, entityPose);
     }
 
     @Override
     public boolean mouseDragged(double posX, double posY, int button, double deltaX, double deltaY) {
         if (modifyHead) {
-            playerPose.headRotationX -= deltaX;
-            playerPose.headRotationY = (float) Math.min(Math.max(playerPose.headRotationY - deltaY, -90F), 90F);
+            entityPose.headRotationX -= deltaX;
+            entityPose.headRotationY = (float) Math.min(Math.max(entityPose.headRotationY - deltaY, -90F), 90F);
         }
         if (modifyBody) {
-            playerPose.bodyRotationX -= deltaX;
-            playerPose.bodyRotationY = (float) Math.min(Math.max(playerPose.bodyRotationY - deltaY, -45F), 45F);
+            entityPose.bodyRotationX -= deltaX;
+            entityPose.bodyRotationY = (float) Math.min(Math.max(entityPose.bodyRotationY - deltaY, -45F), 45F);
         }
         return super.mouseDragged(posX, posY, button, deltaX, deltaY);
     }
 
-    public static void renderEntityInInventory(int posX, int posY, int scale, LivingEntity entity, PlayerPose playerPose) {
+    public static void renderEntityInInventory(int posX, int posY, int scale, LivingEntity entity, EntityPose playerPose) {
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.pushPose();
         poseStack.translate(posX, posY, 1500D);

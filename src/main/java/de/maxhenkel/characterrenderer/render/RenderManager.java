@@ -5,7 +5,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
-import de.maxhenkel.characterrenderer.PlayerPose;
+import de.maxhenkel.characterrenderer.EntityPose;
 import de.maxhenkel.characterrenderer.gui.CharacterRendererScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,13 +32,13 @@ public class RenderManager {
     public static class RenderObject {
         int x;
         int y;
-        PlayerPose playerPose;
+        EntityPose playerPose;
         LivingEntity entity;
         File output;
         Consumer<RenderResult> callback;
         boolean replaceExisting;
 
-        RenderObject(int x, int y, PlayerPose playerPose, LivingEntity entity, File outputFile, boolean replaceExisting, Consumer<RenderResult> callback) {
+        RenderObject(int x, int y, EntityPose playerPose, LivingEntity entity, File outputFile, boolean replaceExisting, Consumer<RenderResult> callback) {
             this.x = x;
             this.y = y;
             this.playerPose = playerPose;
@@ -75,11 +75,11 @@ public class RenderManager {
         }
     }
 
-    public static void enqeueRender(int x, int y, LivingEntity entity, PlayerPose playerPose, File outputFile, Consumer<RenderResult> callback) {
+    public static void enqeueRender(int x, int y, LivingEntity entity, EntityPose playerPose, File outputFile, Consumer<RenderResult> callback) {
         enqeueRender(x, y, entity, playerPose, outputFile, callback, false);
     }
 
-    public static void enqeueRender(int x, int y, LivingEntity entity, PlayerPose playerPose, File outputFile, Consumer<RenderResult> callback, boolean replaceExisting /* = false */) {
+    public static void enqeueRender(int x, int y, LivingEntity entity, EntityPose playerPose, File outputFile, Consumer<RenderResult> callback, boolean replaceExisting /* = false */) {
         toRender.add(new RenderObject(x, y, playerPose, entity, outputFile, replaceExisting, callback));
     }
 
@@ -136,12 +136,12 @@ public class RenderManager {
         checkGLError(renderObject);
         RenderSystem.clear(256, Minecraft.ON_OSX);
         int scale = (y - 400) / 2;
-        int k = scale*8;
+        int k = scale * 8;
         Matrix4f matrix4f = Matrix4f.orthographic(0.0F, x, 0.0F, y, 0, k);
         RenderSystem.setProjectionMatrix(matrix4f);
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.setIdentity();
-        poseStack.translate(0.0, 0.0, -(k/2));
+        poseStack.translate(0.0, 0.0, -(k / 2));
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
         CharacterRendererScreen.renderEntityInInventory(x / 2, y - 200, scale, renderObject.entity, renderObject.playerPose);

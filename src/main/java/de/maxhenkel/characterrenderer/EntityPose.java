@@ -1,6 +1,6 @@
 package de.maxhenkel.characterrenderer;
 
-public class PlayerPose {
+public class EntityPose {
 
     public float headRotationX;
     public float headRotationY;

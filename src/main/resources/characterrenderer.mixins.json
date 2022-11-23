@@ -4,7 +4,8 @@
   "package": "de.maxhenkel.characterrenderer.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "RenderSystemFlipFrameMixin"
+    "RenderSystemFlipFrameMixin",
+    "PlayerRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
