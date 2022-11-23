@@ -41,6 +41,7 @@ public class CharacterRendererScreen extends ScreenBase {
     private Button bodyButton;
 
     private Button hatButton;
+    private Button capeButton;
     private Button jacketButton;
     private Button sleeveButton;
     private Button pantsButton;
@@ -78,23 +79,34 @@ public class CharacterRendererScreen extends ScreenBase {
         });
         addRenderableWidget(bodyButton);
 
-        hatButton = new Button(guiLeft + xSize - 10 - 40, guiTop + 20, 40, 20, Component.translatable("message.characterrenderer.hat"), button -> {
+        int posY = guiTop + 20;
+
+        hatButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.hat"), button -> {
             togglePart(PlayerModelPart.HAT);
         });
         addRenderableWidget(hatButton);
+        posY += 25;
 
-        jacketButton = new Button(guiLeft + xSize - 10 - 40, guiTop + 20 + 20 + 5, 40, 20, Component.translatable("message.characterrenderer.jacket"), button -> {
+        capeButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.cape"), button -> {
+            togglePart(PlayerModelPart.CAPE);
+        });
+        addRenderableWidget(capeButton);
+        posY += 25;
+
+        jacketButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.jacket"), button -> {
             togglePart(PlayerModelPart.JACKET);
         });
         addRenderableWidget(jacketButton);
+        posY += 25;
 
-        sleeveButton = new Button(guiLeft + xSize - 10 - 40, guiTop + 20 + 20 + 5 + 20 + 5, 40, 20, Component.translatable("message.characterrenderer.sleeves"), button -> {
+        sleeveButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.sleeves"), button -> {
             togglePart(PlayerModelPart.LEFT_SLEEVE);
             togglePart(PlayerModelPart.RIGHT_SLEEVE);
         });
         addRenderableWidget(sleeveButton);
+        posY += 25;
 
-        pantsButton = new Button(guiLeft + xSize - 10 - 40, guiTop + 20 + 20 + 5 + 20 + 5 + 20 + 5, 40, 20, Component.translatable("message.characterrenderer.pants"), button -> {
+        pantsButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.pants"), button -> {
             togglePart(PlayerModelPart.LEFT_PANTS_LEG);
             togglePart(PlayerModelPart.RIGHT_PANTS_LEG);
         });
@@ -129,7 +141,7 @@ public class CharacterRendererScreen extends ScreenBase {
 
     private void togglePart(PlayerModelPart part) {
         if (entity instanceof DummyPlayer player) {
-            player.showPart(part, player.isModelPartShown(part));
+            player.showPart(part, !player.isModelPartShown(part));
         }
     }
 
