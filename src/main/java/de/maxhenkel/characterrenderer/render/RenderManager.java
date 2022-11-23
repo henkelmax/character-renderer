@@ -130,25 +130,21 @@ public class RenderManager {
             throw new IllegalStateException("OpenGL FBO Error, " + status);
         }
         GL30.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
-        checkGLError(renderObject);
-
         GL30.glViewport(0, 0, x, y);
-        checkGLError(renderObject);
-
         GL30.glClearColor(0f, 0f, 0f, 0.0f);
-        checkGLError(renderObject);
-
         GL30.glClear(GL11.GL_COLOR_BUFFER_BIT);
         checkGLError(renderObject);
         RenderSystem.clear(256, Minecraft.ON_OSX);
-        Matrix4f matrix4f = Matrix4f.orthographic(0.0F, x, 0.0F, y, 1000.0F, 3000.0F);
+        int scale = (y - 400) / 2;
+        int k = scale*8;
+        Matrix4f matrix4f = Matrix4f.orthographic(0.0F, x, 0.0F, y, 0, k);
         RenderSystem.setProjectionMatrix(matrix4f);
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.setIdentity();
-        poseStack.translate(0.0, 0.0, -3000);
+        poseStack.translate(0.0, 0.0, -(k/2));
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
-        CharacterRendererScreen.renderEntityInInventory(x / 2, y - 200, (y - 400) / 2, renderObject.entity, renderObject.playerPose);
+        CharacterRendererScreen.renderEntityInInventory(x / 2, y - 200, scale, renderObject.entity, renderObject.playerPose);
         RenderSystem.replayQueue();
         ByteBuffer render = ByteBuffer.allocateDirect(x * y * 4);
         GL30.glFlush();
