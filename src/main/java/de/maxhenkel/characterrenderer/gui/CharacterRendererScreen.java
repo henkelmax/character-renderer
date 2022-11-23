@@ -22,6 +22,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.PlayerModelPart;
 
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -38,6 +39,11 @@ public class CharacterRendererScreen extends ScreenBase {
 
     private Button headButton;
     private Button bodyButton;
+
+    private Button hatButton;
+    private Button jacketButton;
+    private Button sleeveButton;
+    private Button pantsButton;
 
     private boolean modifyHead;
     private boolean modifyBody;
@@ -72,6 +78,28 @@ public class CharacterRendererScreen extends ScreenBase {
         });
         addRenderableWidget(bodyButton);
 
+        hatButton = new Button(guiLeft + xSize - 10 - 40, guiTop + 20, 40, 20, Component.translatable("message.characterrenderer.hat"), button -> {
+            togglePart(PlayerModelPart.HAT);
+        });
+        addRenderableWidget(hatButton);
+
+        jacketButton = new Button(guiLeft + xSize - 10 - 40, guiTop + 20 + 20 + 5, 40, 20, Component.translatable("message.characterrenderer.jacket"), button -> {
+            togglePart(PlayerModelPart.JACKET);
+        });
+        addRenderableWidget(jacketButton);
+
+        sleeveButton = new Button(guiLeft + xSize - 10 - 40, guiTop + 20 + 20 + 5 + 20 + 5, 40, 20, Component.translatable("message.characterrenderer.sleeves"), button -> {
+            togglePart(PlayerModelPart.LEFT_SLEEVE);
+            togglePart(PlayerModelPart.RIGHT_SLEEVE);
+        });
+        addRenderableWidget(sleeveButton);
+
+        pantsButton = new Button(guiLeft + xSize - 10 - 40, guiTop + 20 + 20 + 5 + 20 + 5 + 20 + 5, 40, 20, Component.translatable("message.characterrenderer.pants"), button -> {
+            togglePart(PlayerModelPart.LEFT_PANTS_LEG);
+            togglePart(PlayerModelPart.RIGHT_PANTS_LEG);
+        });
+        addRenderableWidget(pantsButton);
+
         modifyHead = true;
         headButton.active = false;
 
@@ -91,6 +119,25 @@ public class CharacterRendererScreen extends ScreenBase {
                 }
             }, true);
         }));
+
+        boolean isPlayer = entity instanceof DummyPlayer;
+        hatButton.active = isPlayer;
+        jacketButton.active = isPlayer;
+        sleeveButton.active = isPlayer;
+        pantsButton.active = isPlayer;
+    }
+
+    private void togglePart(PlayerModelPart part) {
+        if (entity instanceof DummyPlayer player) {
+            player.showPart(part, player.isModelPartShown(part));
+        }
+    }
+
+    private boolean isPartShown(PlayerModelPart part) {
+        if (entity instanceof DummyPlayer player) {
+            return player.isModelPartShown(part);
+        }
+        return false;
     }
 
     private void sendMessage(Component component) {

@@ -8,5 +8,10 @@
   "message.characterrenderer.render_error": "Failed to render character: %s",
   "message.characterrenderer.open_folder": "Open Folder",
   "message.characterrenderer.player_too_far_away": "Player %s is too far away to fetch equipment",
-  "message.characterrenderer.unknown_player": "Unknown player: %s"
+  "message.characterrenderer.unknown_player": "Unknown player: %s",
+  "message.characterrenderer.hat": "Hat",
+  "message.characterrenderer.jacket": "Jacket",
+  "message.characterrenderer.sleeves": "Sleeves",
+  "message.characterrenderer.pants": "Pants"
+
 }
