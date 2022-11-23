@@ -15,6 +15,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 @Environment(EnvType.CLIENT)
 public class CharacterRenderer implements ClientModInitializer {
 
@@ -30,6 +33,12 @@ public class CharacterRenderer implements ClientModInitializer {
 
         Minecraft mc = Minecraft.getInstance();
         CLIENT_CONFIG = ConfigBuilder.build(FabricLoader.getInstance().getConfigDir().resolve(MODID).resolve("characterrenderer.properties"), ClientConfig::new);
+
+        try {
+            Files.createDirectories(CLIENT_CONFIG.getSaveFolder());
+        } catch (IOException e) {
+            LOGGER.error("Failed to create save folder", e);
+        }
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (mc.player == null) {

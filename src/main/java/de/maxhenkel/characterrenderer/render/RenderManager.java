@@ -167,23 +167,22 @@ public class RenderManager {
                 imgData[outByte + 3] = render.get(inByte);
             }
         }
-        File outputFile = Minecraft.getInstance().gameDirectory.toPath().resolve("render.png").toFile();
-        if (outputFile.exists()) {
+        if (renderObject.output.exists()) {
             if (!renderObject.replaceExisting) {
                 renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.FILE_ALREADY_EXISTS));
-                throw new FileAlreadyExistsException(outputFile.getAbsolutePath());
+                throw new FileAlreadyExistsException(renderObject.output.getAbsolutePath());
             }
-            if (!outputFile.delete()) {
+            if (!renderObject.output.delete()) {
                 renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.FILESYSTEM_ERROR));
                 throw new IllegalStateException();
             }
         }
         try {
-            if (!outputFile.createNewFile()) {
+            if (!renderObject.output.createNewFile()) {
                 renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.FILESYSTEM_ERROR));
                 throw new IllegalStateException();
             }
-            ImageIO.write(image, "png", outputFile);
+            ImageIO.write(image, "png", renderObject.output);
         } catch (IOException e) {
             renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.FILESYSTEM_ERROR));
             throw new RuntimeException(e);

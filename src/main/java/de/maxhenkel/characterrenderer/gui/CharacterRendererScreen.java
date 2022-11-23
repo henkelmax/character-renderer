@@ -8,19 +8,28 @@ import com.mojang.math.Vector3f;
 import de.maxhenkel.characterrenderer.CharacterRenderer;
 import de.maxhenkel.characterrenderer.PlayerPose;
 import de.maxhenkel.characterrenderer.render.RenderManager;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 
 public class CharacterRendererScreen extends ScreenBase {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(CharacterRenderer.MODID, "textures/gui/renderer.png");
+    private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
 
     private PlayerPose playerPose;
 
@@ -59,16 +68,29 @@ public class CharacterRendererScreen extends ScreenBase {
         headButton.active = false;
 
         addRenderableWidget(new Button(guiLeft + 10, guiTop + ySize - 5 - 20, xSize - 20, 20, Component.translatable("message.characterrenderer.render"), button -> {
-            //TODO Render character
-            RenderManager.enqeueRender(1500, 2000, minecraft.player, playerPose, Minecraft.getInstance().gameDirectory.toPath().resolve("render.png").toFile(), (x) -> {
-                if (x.err != RenderManager.RenderResult.State.SUCCESS) {
-                    //something went wrong
-                    System.out.println("something went wrong");
+            Path outputFile = CharacterRenderer.CLIENT_CONFIG.getSaveFolder().resolve("%s.png".formatted(FILE_DATE_FORMAT.format(Calendar.getInstance().getTime())));
+            RenderManager.enqeueRender(1500, 2000, minecraft.player, playerPose, outputFile.toFile(), (result) -> {
+                if (result.err.equals(RenderManager.RenderResult.State.SUCCESS)) {
+                    sendMessage(Component.translatable("message.characterrenderer.render_success", Component.literal(result.result.getName())
+                            .withStyle(ChatFormatting.UNDERLINE)
+                            .withStyle(style -> style
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("message.characterrenderer.open_folder")))
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, result.result.toPath().getParent().normalize().toString()))))
+                    );
                 } else {
-                    System.out.println("saved render.png");
+                    sendMessage(Component.translatable("message.characterrenderer.render_error", Component.literal(result.err.toString()).withStyle(ChatFormatting.GRAY)));
                 }
             }, true);
         }));
+    }
+
+    private void sendMessage(Component component) {
+        CharacterRenderer.LOGGER.info(component.getString());
+        LocalPlayer player = minecraft.player;
+        if (player == null) {
+            return;
+        }
+        player.sendSystemMessage(component);
     }
 
     @Override
@@ -85,7 +107,6 @@ public class CharacterRendererScreen extends ScreenBase {
 
         fill(matrixStack, guiLeft + 60, guiTop + 20, guiLeft + xSize - 60, guiTop + ySize - 30, 0xFFFFFFFF);
         renderEntityInInventory(guiLeft + xSize / 2, guiTop + ySize - 45, 65, minecraft.player, playerPose);
-        // RenderManager.enqeueRender(1708,960,minecraft.player,playerPose);
     }
 
     @Override

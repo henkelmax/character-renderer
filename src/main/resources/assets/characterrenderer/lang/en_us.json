@@ -3,5 +3,8 @@
   "gui.characterrenderer.renderer": "Character Renderer",
   "message.characterrenderer.render": "Render",
   "message.characterrenderer.head": "Head",
-  "message.characterrenderer.body": "Body"
+  "message.characterrenderer.body": "Body",
+  "message.characterrenderer.render_success": "Saved render to %s",
+  "message.characterrenderer.render_error": "Failed to render character: %s",
+  "message.characterrenderer.open_folder": "Open Folder"
 }
