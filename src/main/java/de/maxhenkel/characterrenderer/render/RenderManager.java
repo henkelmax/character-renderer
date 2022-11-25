@@ -137,7 +137,7 @@ public class RenderManager {
         GL30.glClear(GL11.GL_COLOR_BUFFER_BIT);
         checkGLError(renderObject);
         RenderSystem.clear(256, Minecraft.ON_OSX);
-        int scale = (int) ((((double) y) - 400D) / 16D);
+        int scale = y - 400;
         int k = scale * 8;
         Matrix4f matrix4f = Matrix4f.orthographic(0.0F, x, 0.0F, y, 0, k);
         RenderSystem.setProjectionMatrix(matrix4f);
