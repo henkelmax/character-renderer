@@ -1,13 +1,15 @@
 package de.maxhenkel.characterrenderer.render;
 
 import com.mojang.blaze3d.platform.Lighting;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import de.maxhenkel.characterrenderer.EntityPose;
-import de.maxhenkel.characterrenderer.gui.CharacterRendererScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.LivingEntity;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -131,20 +133,20 @@ public class RenderManager {
         }
         GL30.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
         GL30.glViewport(0, 0, x, y);
-        GL30.glClearColor(0f, 0f, 0f, 0.0f);
+        GL30.glClearColor(0F, 0F, 0F, 0F);
         GL30.glClear(GL11.GL_COLOR_BUFFER_BIT);
         checkGLError(renderObject);
         RenderSystem.clear(256, Minecraft.ON_OSX);
-        int scale = (y - 400) / 2;
+        int scale = (int) ((((double) y) - 400D) / 16D);
         int k = scale * 8;
         Matrix4f matrix4f = Matrix4f.orthographic(0.0F, x, 0.0F, y, 0, k);
         RenderSystem.setProjectionMatrix(matrix4f);
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.setIdentity();
-        poseStack.translate(0.0, 0.0, -(k / 2));
+        poseStack.translate(0D, 0D, -(k / 2D));
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
-        CharacterRendererScreen.renderEntityInInventory(x / 2, y - 200, scale, renderObject.entity, renderObject.playerPose);
+        renderEntityInInventory(x / 2, y - 200, scale, renderObject.entity, renderObject.playerPose);
         RenderSystem.replayQueue();
         ByteBuffer render = ByteBuffer.allocateDirect(x * y * 4);
         GL30.glFlush();
@@ -195,6 +197,51 @@ public class RenderManager {
             renderObject.callback.accept(new RenderResult(renderObject, RenderResult.State.OPENGL_ERROR, err));
             throw new IllegalStateException("OpenGL Error, " + err);
         }
+    }
+
+    public static void renderEntityInInventory(int posX, int posY, int scaleInt, LivingEntity entity, EntityPose playerPose) {
+        float scale = ((float) scaleInt) * playerPose.scale;
+        PoseStack poseStack = RenderSystem.getModelViewStack();
+        poseStack.pushPose();
+        poseStack.translate(posX, posY, 1500D);
+        poseStack.scale(1F, 1F, -1F);
+        RenderSystem.applyModelViewMatrix();
+        PoseStack playerPoseStack = new PoseStack();
+        playerPoseStack.translate(0D, 0D, 1050D);
+        playerPoseStack.scale(scale, scale, scale);
+        Quaternion playerRotation = Vector3f.ZP.rotationDegrees(180F);
+        Quaternion cameraOrientation = Vector3f.XP.rotationDegrees(playerPose.bodyRotationY);
+        playerRotation.mul(cameraOrientation);
+        playerPoseStack.mulPose(playerRotation);
+        float yBodyRot = entity.yBodyRot;
+        float entityYRot = entity.getYRot();
+        float entityXRot = entity.getXRot();
+        float yHeadRotO = entity.yHeadRotO;
+        float yHeadRot = entity.yHeadRot;
+        entity.yBodyRot = 180F + playerPose.bodyRotationX;
+        entity.setYRot(180F + playerPose.headRotationX);
+        entity.setXRot(-playerPose.headRotationY);
+        entity.yHeadRot = entity.getYRot();
+        entity.yHeadRotO = entity.getYRot();
+        Lighting.setupForEntityInInventory();
+        EntityRenderDispatcher renderer = Minecraft.getInstance().getEntityRenderDispatcher();
+        cameraOrientation.conj();
+        renderer.overrideCameraOrientation(cameraOrientation);
+        renderer.setRenderShadow(false);
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        RenderSystem.runAsFancy(() -> {
+            renderer.render(entity, 0D, 0D, 0D, 0F, 1F, playerPoseStack, bufferSource, 15728880);
+        });
+        bufferSource.endBatch();
+        renderer.setRenderShadow(true);
+        entity.yBodyRot = yBodyRot;
+        entity.setYRot(entityYRot);
+        entity.setXRot(entityXRot);
+        entity.yHeadRotO = yHeadRotO;
+        entity.yHeadRot = yHeadRot;
+        poseStack.popPose();
+        RenderSystem.applyModelViewMatrix();
+        Lighting.setupFor3DItems();
     }
 
 }

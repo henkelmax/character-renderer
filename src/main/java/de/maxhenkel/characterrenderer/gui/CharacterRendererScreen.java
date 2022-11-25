@@ -1,10 +1,7 @@
 package de.maxhenkel.characterrenderer.gui;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import de.maxhenkel.characterrenderer.CharacterRenderer;
 import de.maxhenkel.characterrenderer.EntityPose;
 import de.maxhenkel.characterrenderer.entity.DummyPlayer;
@@ -12,16 +9,16 @@ import de.maxhenkel.characterrenderer.render.RenderManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.phys.AABB;
 
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -55,6 +52,13 @@ public class CharacterRendererScreen extends ScreenBase {
         super(Component.translatable("gui.characterrenderer.renderer"), 248, 204);
         entityPose = new EntityPose();
         this.entity = entity;
+        AABB boundingBox = entity.getBoundingBox();
+        if (boundingBox == null) {
+            entityPose.scale = 0.5F;
+        } else {
+            double maxSize = Math.max(boundingBox.getXsize(), Math.max(boundingBox.getYsize(), boundingBox.getZsize()));
+            entityPose.scale = (float) (1D / maxSize);
+        }
     }
 
     @Override
@@ -173,7 +177,7 @@ public class CharacterRendererScreen extends ScreenBase {
         font.draw(matrixStack, getTitle().getVisualOrderText(), guiLeft + (xSize - titleWidth) / 2, guiTop + 7, FONT_COLOR);
 
         fill(matrixStack, guiLeft + 60, guiTop + 20, guiLeft + xSize - 60, guiTop + ySize - 30, 0xFFFFFFFF);
-        renderEntityInInventory(guiLeft + xSize / 2, guiTop + ySize - 45, 65, entity, entityPose);
+        RenderManager.renderEntityInInventory(guiLeft + xSize / 2, guiTop + ySize - 45, 128, entity, entityPose);
     }
 
     @Override
@@ -190,52 +194,18 @@ public class CharacterRendererScreen extends ScreenBase {
     }
 
     @Override
-    public boolean isPauseScreen() {
-        return false;
+    public boolean mouseScrolled(double x, double y, double amount) {
+        if (Screen.hasShiftDown()) {
+            amount /= 10D;
+        }
+
+        entityPose.scale = (float) Math.min(Math.max(entityPose.scale + amount / 10F, 0.01F), 10F);
+        return true;
     }
 
-    public static void renderEntityInInventory(int posX, int posY, int scale, LivingEntity entity, EntityPose playerPose) {
-        PoseStack poseStack = RenderSystem.getModelViewStack();
-        poseStack.pushPose();
-        poseStack.translate(posX, posY, 1500D);
-        poseStack.scale(1F, 1F, -1F);
-        RenderSystem.applyModelViewMatrix();
-        PoseStack playerPoseStack = new PoseStack();
-        playerPoseStack.translate(0D, 0D, 1050D);
-        playerPoseStack.scale((float) scale, (float) scale, (float) scale);
-        Quaternion playerRotation = Vector3f.ZP.rotationDegrees(180F);
-        Quaternion cameraOrientation = Vector3f.XP.rotationDegrees(playerPose.bodyRotationY);
-        playerRotation.mul(cameraOrientation);
-        playerPoseStack.mulPose(playerRotation);
-        float yBodyRot = entity.yBodyRot;
-        float entityYRot = entity.getYRot();
-        float entityXRot = entity.getXRot();
-        float yHeadRotO = entity.yHeadRotO;
-        float yHeadRot = entity.yHeadRot;
-        entity.yBodyRot = 180F + playerPose.bodyRotationX;
-        entity.setYRot(180F + playerPose.headRotationX);
-        entity.setXRot(-playerPose.headRotationY);
-        entity.yHeadRot = entity.getYRot();
-        entity.yHeadRotO = entity.getYRot();
-        Lighting.setupForEntityInInventory();
-        EntityRenderDispatcher renderer = Minecraft.getInstance().getEntityRenderDispatcher();
-        cameraOrientation.conj();
-        renderer.overrideCameraOrientation(cameraOrientation);
-        renderer.setRenderShadow(false);
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderSystem.runAsFancy(() -> {
-            renderer.render(entity, 0D, 0D, 0D, 0F, 1F, playerPoseStack, bufferSource, 15728880);
-        });
-        bufferSource.endBatch();
-        renderer.setRenderShadow(true);
-        entity.yBodyRot = yBodyRot;
-        entity.setYRot(entityYRot);
-        entity.setXRot(entityXRot);
-        entity.yHeadRotO = yHeadRotO;
-        entity.yHeadRot = yHeadRot;
-        poseStack.popPose();
-        RenderSystem.applyModelViewMatrix();
-        Lighting.setupFor3DItems();
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
 }
