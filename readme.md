@@ -7,9 +7,13 @@ Either press `C` or enter the `/characterrenderer` command to open the GUI.
 
 Commands with this mod are client side only, so you don't need this on the server and don't need any special permissions on the server.
 
-`/characterrenderer <playername>` Shows the character renderer GUI for the specified player.
+`/characterrenderer player <playername>` Shows the character renderer GUI for the specified player.
 
 *If the targeted player is out of render distance, their equipment won't be visible.*
+
+`/characterrenderer view` Shows the character renderer GUI for the living entity, you are looking at.
+
+`/characterrenderer entity <entity_id>` Shows the character renderer GUI for the living entity, you specified.
 
 ## Configuration
 

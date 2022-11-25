@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
@@ -37,6 +38,20 @@ public class CharacterRendererCommands {
 
             showGuiDelayed(dummyPlayer);
 
+            return 1;
+        })));
+
+        characterrenderer.then(ClientCommandManager.literal("entity").then(ClientCommandManager.argument("id", EntityArgumentType.id()).suggests(EntitySuggestionProvider.id()).executes(context -> {
+            ResourceLocation entityId = EntityArgumentType.getEntity(context, "id");
+
+            LivingEntity livingEntity = EntityUtils.create(entityId);
+
+            if (livingEntity == null) {
+                context.getSource().sendError(Component.translatable("message.characterrenderer.cant_create_entity", entityId));
+                return 1;
+            }
+
+            showGuiDelayed(livingEntity);
             return 1;
         })));
 

@@ -14,6 +14,6 @@
   "message.characterrenderer.jacket": "Jacket",
   "message.characterrenderer.sleeves": "Sleeves",
   "message.characterrenderer.pants": "Pants",
-  "message.characterrenderer.not_looking_at_entity": "You are not looking at an entity"
-
+  "message.characterrenderer.not_looking_at_entity": "You are not looking at an entity",
+  "message.characterrenderer.cant_create_entity": "Can't create entity: %s"
 }
