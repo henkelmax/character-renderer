@@ -5,11 +5,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.level.GameType;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DummyPlayer extends RemotePlayer {
 
@@ -36,6 +40,9 @@ public class DummyPlayer extends RemotePlayer {
 
         ClientboundPlayerInfoPacket.PlayerUpdate update = new ClientboundPlayerInfoPacket.PlayerUpdate(gameProfile, 0, GameType.CREATIVE, null, null);
         playerInfo = new PlayerInfo(update, null, false);
+
+        List<SynchedEntityData.DataItem<?>> copiedItems = toCopy.getEntityData().getAll().stream().map(SynchedEntityData.DataItem::copy).collect(Collectors.toList());
+        getEntityData().assignValues(copiedItems);
     }
 
     public DummyPlayer(GameProfile gameProfile) {
