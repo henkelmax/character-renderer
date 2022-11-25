@@ -58,6 +58,10 @@ public class CharacterRendererScreen extends ScreenBase {
         } else {
             double maxSize = Math.max(boundingBox.getXsize(), Math.max(boundingBox.getYsize(), boundingBox.getZsize()));
             entityPose.scale = (float) (1D / maxSize);
+
+            if (boundingBox.getXsize() >= boundingBox.getYsize() && boundingBox.getZsize() >= boundingBox.getYsize()) {
+                entityPose.scale *= 0.75F;
+            }
         }
     }
 

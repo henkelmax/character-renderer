@@ -199,8 +199,8 @@ public class RenderManager {
         }
     }
 
-    public static void renderEntityInInventory(int posX, int posY, int scaleInt, LivingEntity entity, EntityPose playerPose) {
-        float scale = ((float) scaleInt) * playerPose.scale;
+    public static void renderEntityInInventory(int posX, int posY, int scaleInt, LivingEntity entity, EntityPose entityPose) {
+        float scale = ((float) scaleInt) * entityPose.scale;
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.pushPose();
         poseStack.translate(posX, posY, 1500D);
@@ -210,7 +210,7 @@ public class RenderManager {
         playerPoseStack.translate(0D, 0D, 1050D);
         playerPoseStack.scale(scale, scale, scale);
         Quaternion playerRotation = Vector3f.ZP.rotationDegrees(180F);
-        Quaternion cameraOrientation = Vector3f.XP.rotationDegrees(playerPose.bodyRotationY);
+        Quaternion cameraOrientation = Vector3f.XP.rotationDegrees(entityPose.bodyRotationY);
         playerRotation.mul(cameraOrientation);
         playerPoseStack.mulPose(playerRotation);
         float yBodyRot = entity.yBodyRot;
@@ -218,9 +218,9 @@ public class RenderManager {
         float entityXRot = entity.getXRot();
         float yHeadRotO = entity.yHeadRotO;
         float yHeadRot = entity.yHeadRot;
-        entity.yBodyRot = 180F + playerPose.bodyRotationX;
-        entity.setYRot(180F + playerPose.headRotationX);
-        entity.setXRot(-playerPose.headRotationY);
+        entity.yBodyRot = 180F + entityPose.bodyRotationX;
+        entity.setYRot(180F + entityPose.headRotationX);
+        entity.setXRot(-entityPose.headRotationY);
         entity.yHeadRot = entity.getYRot();
         entity.yHeadRotO = entity.getYRot();
         Lighting.setupForEntityInInventory();
