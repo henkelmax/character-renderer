@@ -9,6 +9,8 @@ Commands with this mod are client side only, so you don't need this on the serve
 
 `/characterrenderer player <playername>` Shows the character renderer GUI for the specified player.
 
+`/characterrenderer player <playername> [<playername_skin>]` Shows the character renderer GUI for the specified player, with the skin of the player in the second argument.
+
 *If the targeted player is out of render distance, their equipment won't be visible.*
 
 `/characterrenderer view` Shows the character renderer GUI for the living entity, you are looking at.

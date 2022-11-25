@@ -18,11 +18,12 @@ public class NearbyPlayerArgumentType implements ArgumentType<String> {
 
     @Override
     public String parse(StringReader reader) throws CommandSyntaxException {
+        String name = reader.readString();
         if (mc.player == null) {
-            return reader.readString();
+            return name;
         }
-        mc.player.connection.getOnlinePlayers().stream().filter(player -> player.getProfile().getName().equals(reader.getRemaining())).findFirst().orElseThrow(() -> ERROR_UNKNOWN_ENTITY.create(reader.getRemaining()));
-        return reader.readString();
+        mc.player.connection.getOnlinePlayers().stream().filter(player -> player.getProfile().getName().equals(name)).findFirst().orElseThrow(() -> ERROR_UNKNOWN_ENTITY.create(name));
+        return name;
     }
 
     public static PlayerInfo player(String name, CommandContext<FabricClientCommandSource> context) throws CommandSyntaxException {

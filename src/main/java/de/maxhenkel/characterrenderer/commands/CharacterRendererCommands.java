@@ -2,6 +2,9 @@ package de.maxhenkel.characterrenderer.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.maxhenkel.characterrenderer.entity.DummyPlayer;
 import de.maxhenkel.characterrenderer.entity.EntityUtils;
 import de.maxhenkel.characterrenderer.gui.CharacterRendererScreen;
@@ -22,24 +25,15 @@ public class CharacterRendererCommands {
     public static void init(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
         LiteralArgumentBuilder<FabricClientCommandSource> characterrenderer = ClientCommandManager.literal("characterrenderer");
 
-        characterrenderer.then(ClientCommandManager.literal("player").then(ClientCommandManager.argument("player", NearbyPlayerArgumentType.id()).suggests(NearbyPlayerSuggestionProvider.id()).executes(context -> {
+        RequiredArgumentBuilder<FabricClientCommandSource, String> playerArg = ClientCommandManager.argument("player", NearbyPlayerArgumentType.id()).suggests(NearbyPlayerSuggestionProvider.id());
+        playerArg.executes(context -> {
             PlayerInfo player = NearbyPlayerArgumentType.player("player", context);
-
-            Player playerByUUID = mc.level.getPlayerByUUID(player.getProfile().getId());
-
-            Player dummyPlayer;
-
-            if (playerByUUID == null) {
-                dummyPlayer = new DummyPlayer(player.getProfile());
-                context.getSource().sendFeedback(Component.translatable("message.characterrenderer.player_too_far_away", player.getProfile().getName()));
-            } else {
-                dummyPlayer = playerByUUID;
-            }
-
-            showGuiDelayed(dummyPlayer);
-
-            return 1;
-        })));
+            return player(context, player, player);
+        });
+        playerArg.then(ClientCommandManager.argument("skin", NearbyPlayerArgumentType.id()).suggests(NearbyPlayerSuggestionProvider.id()).executes(context -> {
+            return player(context, NearbyPlayerArgumentType.player("player", context), NearbyPlayerArgumentType.player("skin", context));
+        }));
+        characterrenderer.then(ClientCommandManager.literal("player").then(playerArg));
 
         characterrenderer.then(ClientCommandManager.literal("entity").then(ClientCommandManager.argument("id", EntityArgumentType.id()).suggests(EntitySuggestionProvider.id()).executes(context -> {
             ResourceLocation entityId = EntityArgumentType.getEntity(context, "id");
@@ -66,6 +60,23 @@ public class CharacterRendererCommands {
         }));
 
         dispatcher.register(characterrenderer);
+    }
+
+    private static int player(CommandContext<FabricClientCommandSource> context, PlayerInfo player, PlayerInfo skin) throws CommandSyntaxException {
+        Player playerByUUID = mc.level.getPlayerByUUID(player.getProfile().getId());
+
+        Player dummyPlayer;
+
+        if (playerByUUID == null) {
+            dummyPlayer = new DummyPlayer(skin.getProfile());
+            context.getSource().sendFeedback(Component.translatable("message.characterrenderer.player_too_far_away", player.getProfile().getName()));
+        } else {
+            dummyPlayer = new DummyPlayer(skin.getProfile(), playerByUUID);
+        }
+
+        showGuiDelayed(dummyPlayer);
+
+        return 1;
     }
 
     private static void showGuiDelayed(LivingEntity entity) {

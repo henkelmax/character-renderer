@@ -14,7 +14,9 @@ public class EntityUtils {
 
     public static LivingEntity cloneEntity(LivingEntity entity) {
         if (entity instanceof Player player) {
-            if (!(entity instanceof DummyPlayer)) {
+            if (entity instanceof DummyPlayer) {
+                return entity;
+            } else {
                 return new DummyPlayer(player.getGameProfile(), player);
             }
         }
