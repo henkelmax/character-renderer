@@ -13,6 +13,7 @@
   "message.characterrenderer.cape": "Cape",
   "message.characterrenderer.jacket": "Jacket",
   "message.characterrenderer.sleeves": "Sleeves",
-  "message.characterrenderer.pants": "Pants"
+  "message.characterrenderer.pants": "Pants",
+  "message.characterrenderer.not_looking_at_entity": "You are not looking at an entity"
 
 }

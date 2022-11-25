@@ -21,13 +21,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
 
 public class CharacterRendererScreen extends ScreenBase {
 
@@ -35,7 +33,7 @@ public class CharacterRendererScreen extends ScreenBase {
     private static final SimpleDateFormat FILE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
 
     private EntityPose entityPose;
-    private Player entity;
+    private LivingEntity entity;
 
     private Button headButton;
     private Button bodyButton;
@@ -53,7 +51,7 @@ public class CharacterRendererScreen extends ScreenBase {
         this(new DummyPlayer(Minecraft.getInstance().getUser().getGameProfile(), Minecraft.getInstance().player));
     }
 
-    public CharacterRendererScreen(Player entity) {
+    public CharacterRendererScreen(LivingEntity entity) {
         super(Component.translatable("gui.characterrenderer.renderer"), 248, 204);
         entityPose = new EntityPose();
         this.entity = entity;
@@ -112,8 +110,8 @@ public class CharacterRendererScreen extends ScreenBase {
         });
         addRenderableWidget(pantsButton);
 
-        modifyHead = true;
-        headButton.active = false;
+        modifyBody = true;
+        bodyButton.active = false;
 
         addRenderableWidget(new Button(guiLeft + 10, guiTop + ySize - 5 - 20, xSize - 20, 20, Component.translatable("message.characterrenderer.render"), button -> {
             Path outputFile = CharacterRenderer.CLIENT_CONFIG.getSaveFolder().resolve("%s.png".formatted(FILE_DATE_FORMAT.format(Calendar.getInstance().getTime())));
@@ -134,6 +132,7 @@ public class CharacterRendererScreen extends ScreenBase {
 
         boolean isPlayer = entity instanceof DummyPlayer;
         hatButton.active = isPlayer;
+        capeButton.active = isPlayer;
         jacketButton.active = isPlayer;
         sleeveButton.active = isPlayer;
         pantsButton.active = isPlayer;
@@ -188,6 +187,11 @@ public class CharacterRendererScreen extends ScreenBase {
             entityPose.bodyRotationY = (float) Math.min(Math.max(entityPose.bodyRotationY - deltaY, -45F), 45F);
         }
         return super.mouseDragged(posX, posY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
     public static void renderEntityInInventory(int posX, int posY, int scale, LivingEntity entity, EntityPose playerPose) {
