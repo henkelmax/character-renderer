@@ -196,10 +196,10 @@ public class CharacterRendererScreen extends ScreenBase {
     @Override
     public boolean mouseScrolled(double x, double y, double amount) {
         if (Screen.hasShiftDown()) {
-            amount /= 10D;
+            amount /= 5D;
         }
 
-        entityPose.scale = (float) Math.min(Math.max(entityPose.scale + amount / 10F, 0.01F), 10F);
+        entityPose.scale = (float) Math.min(Math.max(entityPose.scale + amount / 50F, 0.01F), 10F);
         return true;
     }
 
