@@ -2,14 +2,19 @@ package de.maxhenkel.characterrenderer.entity;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.RemotePlayer;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.level.GameType;
+import org.jetbrains.annotations.Nullable;
 
 public class DummyPlayer extends RemotePlayer {
 
     private byte model;
+    private PlayerInfo playerInfo;
 
     public DummyPlayer(GameProfile gameProfile, Player toCopy) {
         this(gameProfile);
@@ -28,6 +33,9 @@ public class DummyPlayer extends RemotePlayer {
             inventory.armor.set(i, toCopyInventory.armor.get(i).copy());
         }
         inventory.selected = toCopyInventory.selected;
+
+        ClientboundPlayerInfoPacket.PlayerUpdate update = new ClientboundPlayerInfoPacket.PlayerUpdate(gameProfile, 0, GameType.CREATIVE, null, null);
+        playerInfo = new PlayerInfo(update, null, false);
     }
 
     public DummyPlayer(GameProfile gameProfile) {
@@ -62,4 +70,9 @@ public class DummyPlayer extends RemotePlayer {
         return (model & part.getMask()) == part.getMask();
     }
 
+    @Nullable
+    @Override
+    protected PlayerInfo getPlayerInfo() {
+        return playerInfo;
+    }
 }

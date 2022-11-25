@@ -1,17 +1,18 @@
 package de.maxhenkel.characterrenderer.commands;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.maxhenkel.characterrenderer.entity.DummyPlayer;
 import de.maxhenkel.characterrenderer.entity.EntityUtils;
+import de.maxhenkel.characterrenderer.entity.SkinUtils;
 import de.maxhenkel.characterrenderer.gui.CharacterRendererScreen;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -27,11 +28,18 @@ public class CharacterRendererCommands {
 
         RequiredArgumentBuilder<FabricClientCommandSource, String> playerArg = ClientCommandManager.argument("player", NearbyPlayerArgumentType.id()).suggests(NearbyPlayerSuggestionProvider.id());
         playerArg.executes(context -> {
-            PlayerInfo player = NearbyPlayerArgumentType.player("player", context);
-            return player(context, player, player);
+            GameProfile player = NearbyPlayerArgumentType.player("player", context).getProfile();
+            player(context, player, player);
+            return 1;
         });
-        playerArg.then(ClientCommandManager.argument("skin", NearbyPlayerArgumentType.id()).suggests(NearbyPlayerSuggestionProvider.id()).executes(context -> {
-            return player(context, NearbyPlayerArgumentType.player("player", context), NearbyPlayerArgumentType.player("skin", context));
+        playerArg.then(ClientCommandManager.argument("skin", StringArgumentType.string()).executes(context -> {
+            String skin = context.getArgument("skin", String.class);
+            GameProfile player = NearbyPlayerArgumentType.player("player", context).getProfile();
+            context.getSource().sendFeedback(Component.translatable("message.characterrenderer.fetching_skin", skin));
+            SkinUtils.getGameProfile(skin, gameProfile -> {
+                player(context, player, gameProfile);
+            });
+            return 1;
         }));
         characterrenderer.then(ClientCommandManager.literal("player").then(playerArg));
 
@@ -62,21 +70,19 @@ public class CharacterRendererCommands {
         dispatcher.register(characterrenderer);
     }
 
-    private static int player(CommandContext<FabricClientCommandSource> context, PlayerInfo player, PlayerInfo skin) throws CommandSyntaxException {
-        Player playerByUUID = mc.level.getPlayerByUUID(player.getProfile().getId());
+    private static void player(CommandContext<FabricClientCommandSource> context, GameProfile player, GameProfile skin) {
+        Player playerByUUID = mc.level.getPlayerByUUID(player.getId());
 
         Player dummyPlayer;
 
         if (playerByUUID == null) {
-            dummyPlayer = new DummyPlayer(skin.getProfile());
-            context.getSource().sendFeedback(Component.translatable("message.characterrenderer.player_too_far_away", player.getProfile().getName()));
+            dummyPlayer = new DummyPlayer(skin);
+            context.getSource().sendFeedback(Component.translatable("message.characterrenderer.player_too_far_away", player.getName()));
         } else {
-            dummyPlayer = new DummyPlayer(skin.getProfile(), playerByUUID);
+            dummyPlayer = new DummyPlayer(skin, playerByUUID);
         }
 
         showGuiDelayed(dummyPlayer);
-
-        return 1;
     }
 
     private static void showGuiDelayed(LivingEntity entity) {
