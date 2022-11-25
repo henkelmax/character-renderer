@@ -49,7 +49,7 @@ public class CharacterRendererScreen extends ScreenBase {
     }
 
     public CharacterRendererScreen(LivingEntity entity) {
-        super(Component.translatable("gui.characterrenderer.renderer"), 248, 204);
+        super(Component.translatable("gui.characterrenderer.renderer"), 274, 204);
         entityPose = new EntityPose();
         this.entity = entity;
         AABB boundingBox = entity.getBoundingBox();
@@ -169,7 +169,7 @@ public class CharacterRendererScreen extends ScreenBase {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
         RenderSystem.setShaderTexture(0, TEXTURE);
-        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize);
+        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize, 512, 512);
 
         super.render(matrixStack, mouseX, mouseY, partialTicks);
 
