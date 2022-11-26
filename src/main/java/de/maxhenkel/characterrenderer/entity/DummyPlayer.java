@@ -39,7 +39,7 @@ public class DummyPlayer extends RemotePlayer {
         inventory.selected = toCopyInventory.selected;
 
         ClientboundPlayerInfoPacket.PlayerUpdate update = new ClientboundPlayerInfoPacket.PlayerUpdate(gameProfile, 0, GameType.CREATIVE, null, null);
-        playerInfo = new PlayerInfo(update, null, false);
+        playerInfo = new PlayerInfo(update, null);
 
         List<SynchedEntityData.DataItem<?>> copiedItems = toCopy.getEntityData().getAll().stream().map(SynchedEntityData.DataItem::copy).collect(Collectors.toList());
         getEntityData().assignValues(copiedItems);
