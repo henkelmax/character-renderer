@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.AABB;
 
@@ -34,6 +35,8 @@ public class CharacterRendererScreen extends ScreenBase {
 
     private Button headButton;
     private Button bodyButton;
+
+    private Button sneakButton;
 
     private Button hatButton;
     private Button capeButton;
@@ -69,23 +72,37 @@ public class CharacterRendererScreen extends ScreenBase {
     protected void init() {
         super.init();
 
-        headButton = new Button(guiLeft + 10, guiTop + 20, 40, 20, Component.translatable("message.characterrenderer.head"), button -> {
+        int posY = guiTop + 20;
+
+        headButton = new Button(guiLeft + 10, posY, 40, 20, Component.translatable("message.characterrenderer.head"), button -> {
             modifyHead = true;
             modifyBody = false;
             headButton.active = false;
             bodyButton.active = true;
         });
         addRenderableWidget(headButton);
+        posY += 25;
 
-        bodyButton = new Button(guiLeft + 10, guiTop + 45, 40, 20, Component.translatable("message.characterrenderer.body"), button -> {
+        bodyButton = new Button(guiLeft + 10, posY, 40, 20, Component.translatable("message.characterrenderer.body"), button -> {
             modifyHead = false;
             modifyBody = true;
             headButton.active = true;
             bodyButton.active = false;
         });
         addRenderableWidget(bodyButton);
+        posY += 25;
 
-        int posY = guiTop + 20;
+        sneakButton = new Button(guiLeft + 10, posY, 40, 20, Component.translatable("message.characterrenderer.crouch"), button -> {
+            if (Pose.CROUCHING.equals(entity.getPose())) {
+                entity.setPose(Pose.STANDING);
+            } else {
+                entity.setPose(Pose.CROUCHING);
+            }
+        });
+        addRenderableWidget(sneakButton);
+        posY += 25;
+
+        posY = guiTop + 20;
 
         hatButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.hat"), button -> {
             togglePart(PlayerModelPart.HAT);
@@ -139,6 +156,9 @@ public class CharacterRendererScreen extends ScreenBase {
         }));
 
         boolean isPlayer = entity instanceof DummyPlayer;
+
+        sneakButton.active = isPlayer;
+
         hatButton.active = isPlayer;
         capeButton.active = isPlayer;
         jacketButton.active = isPlayer;
