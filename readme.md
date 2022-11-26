@@ -1,7 +1,7 @@
 # Character Renderer
 
 A client-side Fabric mod that renders characters in Minecraft.
-Either press `C` or enter the `/characterrenderer` command to open the GUI.
+Either press `C` or enter one of the `/characterrenderer` commands to open the GUI.
 
 ## Commands
 
