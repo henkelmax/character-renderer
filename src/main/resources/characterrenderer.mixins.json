@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "RenderSystemFlipFrameMixin",
-    "PlayerRendererMixin"
+    "PlayerRendererMixin",
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1
