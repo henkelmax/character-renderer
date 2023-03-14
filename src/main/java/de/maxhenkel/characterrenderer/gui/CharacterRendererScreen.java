@@ -74,71 +74,71 @@ public class CharacterRendererScreen extends ScreenBase {
 
         int posY = guiTop + 20;
 
-        headButton = new Button(guiLeft + 10, posY, 40, 20, Component.translatable("message.characterrenderer.head"), button -> {
+        headButton = Button.builder(Component.translatable("message.characterrenderer.head"), button -> {
             modifyHead = true;
             modifyBody = false;
             headButton.active = false;
             bodyButton.active = true;
-        });
+        }).bounds(guiLeft + 10, posY, 40, 20).build();
         addRenderableWidget(headButton);
         posY += 25;
 
-        bodyButton = new Button(guiLeft + 10, posY, 40, 20, Component.translatable("message.characterrenderer.body"), button -> {
+        bodyButton = Button.builder(Component.translatable("message.characterrenderer.body"), button -> {
             modifyHead = false;
             modifyBody = true;
             headButton.active = true;
             bodyButton.active = false;
-        });
+        }).bounds(guiLeft + 10, posY, 40, 20).build();
         addRenderableWidget(bodyButton);
         posY += 25;
 
-        sneakButton = new Button(guiLeft + 10, posY, 40, 20, Component.translatable("message.characterrenderer.crouch"), button -> {
+        sneakButton = Button.builder(Component.translatable("message.characterrenderer.crouch"), button -> {
             if (Pose.CROUCHING.equals(entity.getPose())) {
                 entity.setPose(Pose.STANDING);
             } else {
                 entity.setPose(Pose.CROUCHING);
             }
-        });
+        }).bounds(guiLeft + 10, posY, 40, 20).build();
         addRenderableWidget(sneakButton);
         posY += 25;
 
         posY = guiTop + 20;
 
-        hatButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.hat"), button -> {
+        hatButton = Button.builder(Component.translatable("message.characterrenderer.hat"), button -> {
             togglePart(PlayerModelPart.HAT);
-        });
+        }).bounds(guiLeft + xSize - 10 - 40, posY, 40, 20).build();
         addRenderableWidget(hatButton);
         posY += 25;
 
-        capeButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.cape"), button -> {
+        capeButton = Button.builder(Component.translatable("message.characterrenderer.cape"), button -> {
             togglePart(PlayerModelPart.CAPE);
-        });
+        }).bounds(guiLeft + xSize - 10 - 40, posY, 40, 20).build();
         addRenderableWidget(capeButton);
         posY += 25;
 
-        jacketButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.jacket"), button -> {
+        jacketButton = Button.builder(Component.translatable("message.characterrenderer.jacket"), button -> {
             togglePart(PlayerModelPart.JACKET);
-        });
+        }).bounds(guiLeft + xSize - 10 - 40, posY, 40, 20).build();
         addRenderableWidget(jacketButton);
         posY += 25;
 
-        sleeveButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.sleeves"), button -> {
+        sleeveButton = Button.builder(Component.translatable("message.characterrenderer.sleeves"), button -> {
             togglePart(PlayerModelPart.LEFT_SLEEVE);
             togglePart(PlayerModelPart.RIGHT_SLEEVE);
-        });
+        }).bounds(guiLeft + xSize - 10 - 40, posY, 40, 20).build();
         addRenderableWidget(sleeveButton);
         posY += 25;
 
-        pantsButton = new Button(guiLeft + xSize - 10 - 40, posY, 40, 20, Component.translatable("message.characterrenderer.pants"), button -> {
+        pantsButton = Button.builder(Component.translatable("message.characterrenderer.pants"), button -> {
             togglePart(PlayerModelPart.LEFT_PANTS_LEG);
             togglePart(PlayerModelPart.RIGHT_PANTS_LEG);
-        });
+        }).bounds(guiLeft + xSize - 10 - 40, posY, 40, 20).build();
         addRenderableWidget(pantsButton);
 
         modifyBody = true;
         bodyButton.active = false;
 
-        addRenderableWidget(new Button(guiLeft + 10, guiTop + ySize - 5 - 20, xSize - 20, 20, Component.translatable("message.characterrenderer.render"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("message.characterrenderer.render"), button -> {
             Path outputFile = CharacterRenderer.CLIENT_CONFIG.getSaveFolder().resolve("%s.png".formatted(FILE_DATE_FORMAT.format(Calendar.getInstance().getTime())));
 
             RenderManager.enqeueRender(CharacterRenderer.CLIENT_CONFIG.renderWidth.get(), CharacterRenderer.CLIENT_CONFIG.renderHeight.get(), entity, entityPose, outputFile.toFile(), (result) -> {
@@ -153,7 +153,7 @@ public class CharacterRendererScreen extends ScreenBase {
                     sendMessage(Component.translatable("message.characterrenderer.render_error", Component.literal(result.err.toString()).withStyle(ChatFormatting.GRAY)));
                 }
             }, true);
-        }));
+        }).bounds(guiLeft + 10, guiTop + ySize - 5 - 20, xSize - 20, 20).build());
 
         boolean isPlayer = entity instanceof DummyPlayer;
 

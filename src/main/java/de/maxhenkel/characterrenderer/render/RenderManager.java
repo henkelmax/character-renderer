@@ -3,14 +3,14 @@ package de.maxhenkel.characterrenderer.render;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import de.maxhenkel.characterrenderer.EntityPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.LivingEntity;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
@@ -139,7 +139,7 @@ public class RenderManager {
         RenderSystem.clear(256, Minecraft.ON_OSX);
         int scale = y - 400;
         int k = scale * 8;
-        Matrix4f matrix4f = Matrix4f.orthographic(0.0F, x, 0.0F, y, 0, k);
+        Matrix4f matrix4f = new Matrix4f().setOrtho(0.0F, x, 0.0F, y, 0, k);
         RenderSystem.setProjectionMatrix(matrix4f);
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.setIdentity();
@@ -209,8 +209,9 @@ public class RenderManager {
         PoseStack playerPoseStack = new PoseStack();
         playerPoseStack.translate(0D, 0D, 1050D);
         playerPoseStack.scale(scale, scale, scale);
-        Quaternion playerRotation = Vector3f.ZP.rotationDegrees(180F);
-        Quaternion cameraOrientation = Vector3f.XP.rotationDegrees(entityPose.bodyRotationY);
+
+        Quaternionf playerRotation = rotationDegrees(ZP, 180F);
+        Quaternionf cameraOrientation = rotationDegrees(XP, entityPose.bodyRotationY);
         playerRotation.mul(cameraOrientation);
         playerPoseStack.mulPose(playerRotation);
         float yBodyRot = entity.yBodyRot;
@@ -225,7 +226,7 @@ public class RenderManager {
         entity.yHeadRotO = entity.getYRot();
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher renderer = Minecraft.getInstance().getEntityRenderDispatcher();
-        cameraOrientation.conj();
+        cameraOrientation.conjugate();
         renderer.overrideCameraOrientation(cameraOrientation);
         renderer.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
@@ -242,6 +243,29 @@ public class RenderManager {
         poseStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
+    }
+
+    public static Vector3f XP = new Vector3f(1F, 0F, 0F);
+    public static Vector3f ZP = new Vector3f(0F, 0F, 1F);
+
+    private static Quaternionf rotationDegrees(Vector3f vec, float degrees) {
+        degrees *= ((float) Math.PI / 180F);
+
+        float f = sin(degrees / 2F);
+        float i = vec.x() * f;
+        float j = vec.y() * f;
+        float k = vec.z() * f;
+        float r = cos(degrees / 2F);
+
+        return new Quaternionf(i, j, k, r);
+    }
+
+    private static float cos(float p_80152_) {
+        return (float) Math.cos((double) p_80152_);
+    }
+
+    private static float sin(float p_80155_) {
+        return (float) Math.sin((double) p_80155_);
     }
 
 }

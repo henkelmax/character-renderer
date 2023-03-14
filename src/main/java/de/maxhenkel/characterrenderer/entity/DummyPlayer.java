@@ -1,15 +1,14 @@
 package de.maxhenkel.characterrenderer.entity;
 
 import com.mojang.authlib.GameProfile;
+import de.maxhenkel.characterrenderer.mixin.SynchedEntityDataMixin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.RemotePlayer;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
-import net.minecraft.world.level.GameType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -38,15 +37,20 @@ public class DummyPlayer extends RemotePlayer {
         }
         inventory.selected = toCopyInventory.selected;
 
-        ClientboundPlayerInfoPacket.PlayerUpdate update = new ClientboundPlayerInfoPacket.PlayerUpdate(gameProfile, 0, GameType.CREATIVE, null, null);
-        playerInfo = new PlayerInfo(update, null, false);
+        playerInfo = new PlayerInfo(gameProfile, false);
 
-        List<SynchedEntityData.DataItem<?>> copiedItems = toCopy.getEntityData().getAll().stream().map(SynchedEntityData.DataItem::copy).collect(Collectors.toList());
+        SynchedEntityDataMixin mixin = (SynchedEntityDataMixin) toCopy.getEntityData();
+
+        List<SynchedEntityData.DataValue<?>> copiedItems = mixin.getItemsById().values().stream().map(DummyPlayer::fromDataItem).collect(Collectors.toList());
         getEntityData().assignValues(copiedItems);
     }
 
+    private static <T> SynchedEntityData.DataValue<T> fromDataItem(SynchedEntityData.DataItem<T> dataItem) {
+        return new SynchedEntityData.DataValue<>(dataItem.getAccessor().getId(), dataItem.getAccessor().getSerializer(), dataItem.getValue());
+    }
+
     public DummyPlayer(GameProfile gameProfile) {
-        super(Minecraft.getInstance().level, gameProfile, null);
+        super(Minecraft.getInstance().level, gameProfile);
     }
 
     public void showPart(PlayerModelPart part, boolean show) {

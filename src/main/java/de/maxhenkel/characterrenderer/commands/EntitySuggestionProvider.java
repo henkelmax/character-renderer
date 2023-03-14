@@ -8,7 +8,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.Util;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -36,7 +36,7 @@ public class EntitySuggestionProvider implements SuggestionProvider<FabricClient
 
     public static void initEntityTypes(Level level) {
         ENTITY_CLASSES.clear();
-        Registry.ENTITY_TYPE.stream().forEach((entityType) -> {
+        BuiltInRegistries.ENTITY_TYPE.stream().forEach((entityType) -> {
             Entity e = entityType.create(level);
             if (e == null) {
                 return;

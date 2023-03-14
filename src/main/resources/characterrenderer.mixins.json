@@ -6,7 +6,8 @@
   "client": [
     "RenderSystemFlipFrameMixin",
     "PlayerRendererMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "SynchedEntityDataMixin"
   ],
   "injectors": {
     "defaultRequire": 1
