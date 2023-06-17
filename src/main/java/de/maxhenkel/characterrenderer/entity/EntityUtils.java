@@ -27,7 +27,7 @@ public class EntityUtils {
         CompoundTag data = new CompoundTag();
         entity.saveWithoutId(data);
 
-        LivingEntity clone = (LivingEntity) entity.getType().create(entity.level);
+        LivingEntity clone = (LivingEntity) entity.getType().create(entity.level());
 
         clone.load(data);
 

@@ -1,13 +1,13 @@
 package de.maxhenkel.characterrenderer.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.maxhenkel.characterrenderer.CharacterRenderer;
 import de.maxhenkel.characterrenderer.EntityPose;
 import de.maxhenkel.characterrenderer.entity.DummyPlayer;
 import de.maxhenkel.characterrenderer.render.RenderManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
@@ -189,18 +189,17 @@ public class CharacterRendererScreen extends ScreenBase {
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
-        RenderSystem.setShaderTexture(0, TEXTURE);
-        blit(matrixStack, guiLeft, guiTop, 0, 0, xSize, ySize, 512, 512);
+        guiGraphics.blit(TEXTURE, guiLeft, guiTop, 0, 0, xSize, ySize, 512, 512);
 
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         int titleWidth = font.width(getTitle());
-        font.draw(matrixStack, getTitle().getVisualOrderText(), guiLeft + (xSize - titleWidth) / 2, guiTop + 7, FONT_COLOR);
+        guiGraphics.drawString(font, getTitle().getVisualOrderText(), guiLeft + (xSize - titleWidth) / 2, guiTop + 7, FONT_COLOR, false);
 
-        fill(matrixStack, guiLeft + 60, guiTop + 20, guiLeft + xSize - 60, guiTop + ySize - 30, 0xFFFFFFFF);
+        guiGraphics.fill(guiLeft + 60, guiTop + 20, guiLeft + xSize - 60, guiTop + ySize - 30, 0xFFFFFFFF);
         RenderManager.renderEntityInInventory(guiLeft + xSize / 2, guiTop + ySize - 45, 128, entity, entityPose);
     }
 

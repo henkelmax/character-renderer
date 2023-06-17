@@ -3,6 +3,7 @@ package de.maxhenkel.characterrenderer.render;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import de.maxhenkel.characterrenderer.EntityPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -140,7 +141,7 @@ public class RenderManager {
         int scale = y - 400;
         int k = scale * 8;
         Matrix4f matrix4f = new Matrix4f().setOrtho(0.0F, x, 0.0F, y, 0, k);
-        RenderSystem.setProjectionMatrix(matrix4f);
+        RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.DISTANCE_TO_ORIGIN);
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.setIdentity();
         poseStack.translate(0D, 0D, -(k / 2D));
