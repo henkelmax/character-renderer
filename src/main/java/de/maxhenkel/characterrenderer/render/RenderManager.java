@@ -158,12 +158,11 @@ public class RenderManager {
         byte[] imgData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         for (int ix = 0; ix < x; ix++) {
             for (int iy = 0; iy < y; iy++) {
-                int inByte = ((iy * x) + ix) * 4;
-                int outByte = ((((y - 1) - iy) * x) + ix) * 4;
-                imgData[outByte] = render.get(inByte + 3);
-                imgData[outByte + 1] = render.get(inByte + 2);
-                imgData[outByte + 2] = render.get(inByte + 1);
-                imgData[outByte + 3] = render.get(inByte);
+                int pxByte = ((iy * x) + ix) * 4;
+                imgData[pxByte] = render.get(pxByte + 3);
+                imgData[pxByte + 1] = render.get(pxByte + 2);
+                imgData[pxByte + 2] = render.get(pxByte + 1);
+                imgData[pxByte + 3] = render.get(pxByte);
             }
         }
         if (renderObject.output.exists()) {
